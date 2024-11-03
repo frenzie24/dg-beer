@@ -77,7 +77,7 @@ const Game = () => {
                 onNextPlayer={handleNextPlayer}
             />
 
-            <h3>History</h3>
+            <h3 className='text-2xl'>History</h3>
             {roles.map(role => (
                 <div key={role.id}>
                     <h4>{role.name}</h4>
