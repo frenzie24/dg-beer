@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ProfileButton from './components/ProfileButton';
-import ProfileDetails from './ProfileDetails';
+import ProfileDetails from './components/ProfileDetails';
 import Logout from './Logout';
 
-const UserProfile = () => {
+const Profile = () => {
   const location = useLocation();
   const navigate = useNavigate(); // Use useNavigate for React Router navigation
 
@@ -67,7 +67,7 @@ const handleLogout = () => {
 
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="min-h-screen flex items-center justify-center">
       <div className="max-w-md w-full space-y-8">
         <h2 className="text-center text-3xl font-bold">User Profile</h2>
         <ProfileDetails
@@ -87,15 +87,15 @@ const handleLogout = () => {
           setProfessorId={setProfessorId}
         />
         <div className="grid grid-cols-2 gap-4">
-          <ProfileButton label="New Game" handleClick={()=>{navigate("/game" )}}/>
+          <ProfileButton label="New Game" handleClick={()=>{navigate("/gamesettings" )}}/>
           <ProfileButton label="View Histories" to="/histories" />
-          <ProfileButton label="Resume Game" handleClick={()=>{navigate("/game" )}}/>
+
           <ProfileButton handleClick={handleEditToggle} label={isEditing ? 'Cancel' : 'Edit Profile'} />
         </div>
         <button
             type="button"
             onClick={handleLogout}
-            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            className="px-4 py-2 bg-green-600  rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
           >
             Logout
           </button>
@@ -109,4 +109,4 @@ const handleLogout = () => {
   );
 };
 
-export default UserProfile;
+export default Profile;

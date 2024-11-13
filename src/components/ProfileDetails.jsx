@@ -1,11 +1,11 @@
 import React from 'react';
-import InputField from './components/InputField';
+import InputField from './InputField';
 
 const ProfileDetails = ({ user, isEditing, setFirstName, setLastName, setEmail }) => {
   if (!user) return null;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <InputField
         id="first-name"
         label="First Name"
@@ -14,6 +14,7 @@ const ProfileDetails = ({ user, isEditing, setFirstName, setLastName, setEmail }
         onChange={(e) => setFirstName(e.target.value)}
         disabled={!isEditing}
       />
+
       <InputField
         id="last-name"
         label="Last Name"
@@ -22,9 +23,10 @@ const ProfileDetails = ({ user, isEditing, setFirstName, setLastName, setEmail }
         onChange={(e) => setLastName(e.target.value)}
         disabled={!isEditing}
       />
+
       <InputField
         id="email-address"
-        label="Email address"
+        label="Email Address"
         type="email"
         value={user.email}
         onChange={(e) => setEmail(e.target.value)}
@@ -35,3 +37,4 @@ const ProfileDetails = ({ user, isEditing, setFirstName, setLastName, setEmail }
 };
 
 export default ProfileDetails;
+124
