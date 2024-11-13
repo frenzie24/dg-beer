@@ -10,7 +10,7 @@ import GameSettings from './GameSettings';
 
 const App = () => {
   return (
-    <div className="w-screen h-screen bg-[#782F40] text-slate-100">
+    <div className="w-screen h-screen bg-slate-900 text-slate-100">
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />

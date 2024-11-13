@@ -17,6 +17,7 @@ const Profile = () => {
   const [email, setEmail] = useState(user?.email || '');
   const [schoolId, setSchoolId] = useState(user?.school_id || '');
   const [professorId, setProfessorId] = useState(user?.professor_id || 1);
+  const [games, setGames] = useState([]);
 
   const handleLogout = () => {
     Logout();
@@ -26,6 +27,31 @@ const Profile = () => {
 
   const handleEditToggle = () => {
     setIsEditing((prev) => !prev);
+  };
+
+  useEffect(() => {
+    getGames();
+  }, [])
+
+  const getGames = async () => {
+    const response = await fetch(`http://localhost:3001/api/games/?id=${user.id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',  // Include credentials to ensure cookies are sent
+
+    });
+    debugger;
+    if (response.ok) {
+      console.log('Profile updated successfully');
+      const data = await response.json();
+      console.log('games saved:', data);
+      setIsEditing(false);
+      setGames(data);
+    } else {
+      console.log('Failed to update profile');
+    }
   };
 
   const handleSave = async () => {
@@ -52,7 +78,7 @@ const Profile = () => {
     }
   };
 
-  const handleNewGameClick = () => { navigate("/gamesettings", {state: {user: user}}) }
+  const handleNewGameClick = () => { navigate("/gamesettings", { state: { user: user } }) }
 
 
   useEffect(() => {
@@ -66,6 +92,15 @@ const Profile = () => {
     return null;
   }
 
+
+  /*
+  TODO
+  Add resume game
+  add email game
+  add delete game
+  add limit to number of games per user
+  debug why round is not updating properly in db on game update
+  */
 
 
   return (
@@ -93,6 +128,15 @@ const Profile = () => {
           <ProfileButton label="View Histories" to="/histories" />
 
           <ProfileButton handleClick={handleEditToggle} label={isEditing ? 'Cancel' : 'Edit Profile'} />
+        </div>
+        <div>
+          <ol>
+            {games.map((game) =>
+              <li key={game.id}>
+                <h2>Game ID: {game.id}</h2>
+              </li>
+            )}
+          </ol>
         </div>
         <button
           type="button"

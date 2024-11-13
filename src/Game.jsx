@@ -43,7 +43,7 @@ const Game = () => {
         if (updatedRoles[index].pendingReceived > 0) {
             updatedRoles[index].ordered += Math.floor(updatedRoles[index].pendingReceived);
         }
-        const randomOrderAmount = Math.floor(Math.random() * 20) / entropy; // Random between 1 and the entropy
+        const randomOrderAmount = Math.floor(Math.random() * 20 / entropy); // Random between 1 and the entropy
         updatedRoles[index].ordered += randomOrderAmount;
 
         if (index < roles.length - 1) {
@@ -175,7 +175,7 @@ const Game = () => {
             />
 
             <div className='flex flex-row flex-wrap justify-between'>
-                <h1 className="text-3xl font-bold mb-4">FSU Beer Game</h1>
+                <h1 className="text-3xl font-bold mb-4"> Beer Game</h1>
                 <h1 className="text-3xl font-bold mb-4">Round: {round}</h1>
                 <h1 className="text-3xl font-bold mb-4">Rounds Remaining: {remainingRounds()}</h1>
             </div>
