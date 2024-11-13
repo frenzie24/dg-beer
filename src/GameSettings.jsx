@@ -1,23 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import ErrorModal from './components/ErrorModal';
 
 const GameSettings = ({ }) => {
   // State for the game settings
   const [rounds, setRounds] = useState(10); // Default to 10 rounds
-  const [selectedRole, setSelectedRole] = useState(0); // Default role
-  const [entropyLevel, setEntropyLevel] = useState(5); // Default entropy level (1 to 10)
+  const [role, setRole] = useState(0); // Default role
+  const [entropy, setEntropy] = useState(5); // Default entropy level (1 to 10)
   const location = useLocation();
+  const [user, setUser] = useState(location.state?.user || null)
   const navigate = useNavigate(); // Use useNavigate for React Router navigation
 
+
+  const [errorMessage, setErrorMessage] = useState('');
+
   // Handle form submission to start the game
-  const handleStartGame = (e) => {
+  const handleStartGame = async (e) => {
     e.preventDefault();
-    // Pass the settings to the parent component (or game logic)
-        navigate('/game', { state: { role: Number(selectedRole), rounds: rounds, entropy:entropyLevel } });
+    try {
+      debugger;
+      const response = await fetch('http://localhost:3001/api/games/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ round: 0, rounds, selectedRole: role, entropy }),
+      });
+
+      //setIsLoading(false);
+      debugger;
+      if (response.ok) {
+        debugger;
+        const data = await response.json();
+        console.log('GAME CREATED:', data);
+        navigate('/game', { state: { gameId: data.id, user: user, role: Number(role), rounds: rounds, entropy: entropy } });
+      //  localStorage.setItem('authToken', data.token); // Store the token
+
+        // Redirect to profile page after successful login
+      } else {
+        const data = await response.json();
+        debugger;
+        setErrorMessage(data.message || 'Oops!  We\'re not sure what happened.');
+        navigate('login');
+      }
+    } catch (error) {
+      debugger;
+     //setIsLoading(false);
+      setErrorMessage('An error occurred. Please try again.');
+      navigate('login');
+      console.error(error);
+    }
+
+
+
+
   };
-  const handleSelectRole = (e) =>{
+  const handleSelectRole = (e) => {
     const val = e.target.value;
-    setSelectedRole(val);
+    setRole(val);
   }
 
   const handleOnRoundsChange = (e) => {
@@ -26,16 +67,20 @@ const GameSettings = ({ }) => {
     setRounds(val);
   }
 
-  const handleSelectEntropyLevel =(e) => {
+  const handleSelectEntropy = (e) => {
     const val = e.target.value;
-    setEntropyLevel(val);
+    setEntropy(val);
   }
 
   return (
     <div className="game-settings-container p-6 bg-gray-100 rounded-md shadow-md">
+      <ErrorModal
+        errorMessage={errorMessage}
+        onClose={() => setErrorMessage('')}
+      />
       <h2 className="text-2xl font-bold mb-4">New Game Settings</h2>
 
-      <form onSubmit={handleStartGame}>
+      <form >
         {/* Rounds Input */}
         <div className="mb-4">
           <label htmlFor="rounds" className="block text-sm text-black font-semibold">Rounds:</label>
@@ -54,7 +99,7 @@ const GameSettings = ({ }) => {
           <label htmlFor="role" className="block text-sm text-black font-semibold">Select Role:</label>
           <select
             id="role"
-            value={selectedRole}
+            value={role}
             onChange={handleSelectRole}
             className="mt-1 px-3 py-2 border rounded-md w-full"
             disabled={false}
@@ -68,11 +113,11 @@ const GameSettings = ({ }) => {
 
         {/* Random Entropy Level Dropdown */}
         <div className="mb-4">
-          <label htmlFor="entropy" className="block text-sm text-black font-semibold">Entropy Level (1-10):</label>
+          <label htmlFor="entropy" className="block text-sm text-black font-semibold">Random Entropy Level (1-10):</label>
           <select
             id="entropy"
-            value={entropyLevel}
-            onChange= {handleSelectEntropyLevel}
+            value={entropy}
+            onChange={handleSelectEntropy}
             className="mt-1 px-3 py-2 border rounded-md w-full"
           >
             {[...Array(10).keys()].map((i) => (
@@ -84,7 +129,7 @@ const GameSettings = ({ }) => {
         {/* Submit Button */}
         <div className="flex justify-end">
           <button
-            type="submit"
+            onClick={handleStartGame}
             className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200"
           >
             Start Game

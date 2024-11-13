@@ -18,11 +18,11 @@ const Profile = () => {
   const [schoolId, setSchoolId] = useState(user?.school_id || '');
   const [professorId, setProfessorId] = useState(user?.professor_id || 1);
 
-const handleLogout = () => {
-  Logout();
+  const handleLogout = () => {
+    Logout();
 
-  navigate('/login');
-}
+    navigate('/login');
+  }
 
   const handleEditToggle = () => {
     setIsEditing((prev) => !prev);
@@ -52,6 +52,8 @@ const handleLogout = () => {
     }
   };
 
+  const handleNewGameClick = () => { navigate("/gamesettings", {state: {user: user}}) }
+
 
   useEffect(() => {
     // Redirect to login page if user is undefined
@@ -61,7 +63,7 @@ const handleLogout = () => {
   }, [user, navigate]);
 
   if (!user) {
-    return null; // Don't render anything until user is available or redirected
+    return null;
   }
 
 
@@ -87,18 +89,18 @@ const handleLogout = () => {
           setProfessorId={setProfessorId}
         />
         <div className="grid grid-cols-2 gap-4">
-          <ProfileButton label="New Game" handleClick={()=>{navigate("/gamesettings" )}}/>
+          <ProfileButton label="New Game" handleClick={handleNewGameClick} />
           <ProfileButton label="View Histories" to="/histories" />
 
           <ProfileButton handleClick={handleEditToggle} label={isEditing ? 'Cancel' : 'Edit Profile'} />
         </div>
         <button
-            type="button"
-            onClick={handleLogout}
-            className="px-4 py-2 bg-green-600  rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-          >
-            Logout
-          </button>
+          type="button"
+          onClick={handleLogout}
+          className="px-4 py-2 bg-green-600  rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+        >
+          Logout
+        </button>
         {isEditing && (
           <div className="flex justify-end mt-4">
             <ProfileButton handleClick={handleSave} label="Save" />
