@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Player from './components/Player';
 import ErrorModal from './components/ErrorModal';
+import Connection from './workers/Conncetion';
+
+const delim = `{-}`;
 
 // game must nav from gamesettings to get data required
 const Game = () => {
 
     const navigate = useNavigate(); // Use useNavigate for React Router navigation
     const location = useLocation();
-    const [round, setRound] = useState(0);
+    const [round, setRound] = useState(location.state?.round || 0);
     const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
     const [rounds, setRounds] = useState(location.state?.rounds || 10);
     const [entropy, setEntropy] = useState(location.state?.entropy || 2);
@@ -18,19 +21,21 @@ const Game = () => {
     const [gameOver, setGameOver] = useState(false);
     const [user, setUser] = useState(location.state?.user || null);
 
+    const [history, setHistory] = useState(location.state?.history || ``)
+
 
     const [errorMessage, setErrorMessage] = useState('');
 
     const [roles, setRoles] = useState([
-        { id: 0, name: "Retailer", inventory: 10, ordered: 0, lastOrder: 0, received: 0, totalReceived: 0, pendingReceived: 0, roundsPending: 0, history: [], isHistoryVisible: false },
-        { id: 1, name: "Wholesaler", inventory: 20, ordered: 0, lastOrder: 0, received: 0, totalReceived: 0, pendingReceived: 0, roundsPending: 0, history: [], isHistoryVisible: false },
-        { id: 2, name: "Distributor", inventory: 20, ordered: 0, lastOrder: 0, received: 0, totalReceived: 0, pendingReceived: 0, roundsPending: 0, history: [], isHistoryVisible: false },
-        { id: 3, name: "Manufacturer", inventory: 20, ordered: 0, lastOrder: 0, received: 0, totalReceived: 0, pendingReceived: 0, roundsPending: 0, history: [], isHistoryVisible: false },
+        { role_id: 0, name: "Retailer", user_id: user.id, game_id: location.state.id, inventory: 10, ordered: 0, lastOrder: 0, received: 0, totalReceived: 0, pendingReceived: 0, roundsPending: 0, history: [], isHistoryVisible: false },
+        { role_id: 1, name: "Wholesaler", user_id: user.id, game_id: location.state.id, inventory: 20, ordered: 0, lastOrder: 0, received: 0, totalReceived: 0, pendingReceived: 0, roundsPending: 0, history: [], isHistoryVisible: false },
+        { role_id: 2, name: "Distributor", user_id: user.id, game_id: location.state.id, inventory: 20, ordered: 0, lastOrder: 0, received: 0, totalReceived: 0, pendingReceived: 0, roundsPending: 0, history: [], isHistoryVisible: false },
+        { role_id: 3, name: "Manufacturer", user_id: user.id, game_id: location.state.id, inventory: 20, ordered: 0, lastOrder: 0, received: 0, totalReceived: 0, pendingReceived: 0, roundsPending: 0, history: [], isHistoryVisible: false },
     ]);
 
 
     useEffect(() => {
-        if (roles[currentPlayerIndex].id !== selectedRole) {
+        if (roles[currentPlayerIndex].role_id !== selectedRole) {
             const delay = Math.floor(Math.random() * 1000) + 500; // Random delay between 500ms and 1500ms
             setTimeout(() => handleOrderForNonActiveRoles(currentPlayerIndex), delay);
         }
@@ -43,7 +48,7 @@ const Game = () => {
         if (updatedRoles[index].pendingReceived > 0) {
             updatedRoles[index].ordered += Math.floor(updatedRoles[index].pendingReceived);
         }
-        const randomOrderAmount = Math.floor(Math.random() * 20 / entropy); // Random between 1 and the entropy
+        const randomOrderAmount = Math.floor(Math.random() * 20 / entropy); // Random between 1 - 20  / entropy
         updatedRoles[index].ordered += randomOrderAmount;
 
         if (index < roles.length - 1) {
@@ -68,6 +73,14 @@ const Game = () => {
         handleNextPlayer();
     };
 
+    const addToGameHistory = async (newEntry) => {
+        //doesnt add newentry yet lol
+
+        const newHistory = `${history}${JSON.stringify(newEntry)}${delim}`;
+
+        setHistory(newHistory);
+    };
+
     const handleShipment = async () => {
         const updatedRoles = roles.map(role => {
             if (role.pendingReceived > 0) role.roundsPending++;
@@ -75,7 +88,7 @@ const Game = () => {
             const newInventory = role.inventory - role.received - role.pendingReceived + role.ordered;
             let pending = newInventory < 0 ? Math.abs(newInventory) : 0;
             let receivedAmount = role.received;
-            if (role.id === 0) {
+            if (role.role_id === 0) {
                 receivedAmount = Math.floor(Math.random() * entropy * 10) + 1; // Random shipment
             }
             const historyEntry = {
@@ -88,6 +101,9 @@ const Game = () => {
                 inventory: Math.max(0, newInventory)
             };
 
+            // instead of parsing the different player history arrays, we just add historyEntry to the history we have stored in state before we update the server with a new game state
+            addToGameHistory(historyEntry);
+
             return {
                 ...role,
                 inventory: Math.max(0, newInventory),
@@ -96,18 +112,22 @@ const Game = () => {
                 received: receivedAmount,
                 totalReceived: role.totalReceived + receivedAmount,
                 pendingReceived: pending,
-                history: [...role.history, historyEntry]
+                history: `${role.history}${delim}${historyEntry}`
             };
         });
+        const data = { game: { round, rounds, selectedRole, entropy, history, id: location.state.id }, players: updatedRoles, }
+
+        await updateServer({ ...data });
 
         setRoles(updatedRoles);
         if (round !== rounds) {
-            setRound(round + 1);
+            const newRound = Number(round + 1);
+            setRound(newRound);
         } else {
             setGameOver(true);
             return;
         }
-        await updateServer(updatedRoles);
+
         setCurrentPlayerIndex(0); // Reset to the first player for the next round
     };
 
@@ -118,40 +138,55 @@ const Game = () => {
             handleShipment(); // All players have taken their turn, process shipments
         }
     };
+    /*
 
 
-    const updateServer = async (updatedRoles) => {
+            debugger;
+            try {
+                const response = await fetch('http://localhost:3001/api/games/', {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ id: location.state.gameId, round, rounds, selectedRole, entropy, players: updatedRoles, history:  }),
+                });
 
-        try {
-            const response = await fetch('http://localhost:3001/api/games/', {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify({ id: location.state.gameId, round, rounds, selectedRole, entropy, players: updatedRoles }),
-            });
+                setIsLoading(false);
 
-            setIsLoading(false);
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('game saved:', data);
+                    localStorage.setItem('authToken', data.token); // Store the token
 
-            if (response.ok) {
-                const data = await response.json();
-                console.log('game saved:', data);
-                localStorage.setItem('authToken', data.token); // Store the token
+                } else {
+                    const data = await response.json();
+                    setErrorMessage(data.message || 'Invalid email or password');
+                }
+            } catch (error) {
+                setIsLoading(false);
+                setErrorMessage('An error occurred. Please try again.');
 
-            } else {
-                const data = await response.json();
-                setErrorMessage(data.message || 'Invalid email or password');
+                console.error(error);
             }
-        } catch (error) {
-            setIsLoading(false);
-            setErrorMessage('An error occurred. Please try again.');
+        }*/
 
+    const updateServer = async (data) => {
+        try {
+            const update = await Connection.updateGameData(data);
+            if (update) {
+                console.log(update);
+                return true
+            };
+        } catch (error) {
+            setErrorMessage('An error occurred. Please try again.');
+            navigate("/login");
             console.error(error);
         }
     }
 
     const remainingRounds = () => rounds - round;
+
 
     // Function to toggle the visibility of the history section
     const toggleHistoryVisibility = (roleId) => {
@@ -159,6 +194,7 @@ const Game = () => {
         updatedRoles[roleId].isHistoryVisible = !updatedRoles[roleId].isHistoryVisible;
         setRoles(updatedRoles);
     };
+
 
     return (
 
@@ -171,7 +207,7 @@ const Game = () => {
 
             <ErrorModal
                 errorMessage={errorMessage}
-                onClose={() => {setErrorMessage('');    navigate('/login')}}
+                onClose={() => { setErrorMessage(''); navigate('/login') }}
             />
 
             <div className='flex flex-row flex-wrap justify-between'>
@@ -188,7 +224,7 @@ const Game = () => {
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 flex-wrap gap-8">
                 {!gameOver ? roles.map((role, index) => (
                     <Player player={role}
-                        key={role.id}
+                        key={role.role_id}
                         index={index}
                         currentPlayerIndex={currentPlayerIndex}
                         handleNextPlayer={handleNextPlayer}
@@ -197,7 +233,7 @@ const Game = () => {
 
                 )) : (
                     roles.map((role, index) => (
-                        <div key={role.id} className="mt-4 w-full">
+                        <div key={role.role_id} className="mt-4 w-full">
                             <h4 className="text-lg font-semibold">{role.name} Rounds with Pending Shipments: {role.roundsPending}</h4>
                         </div>
                     ))

@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import ProfileButton from './components/ProfileButton';
 import ProfileDetails from './components/ProfileDetails';
 import Logout from './Logout';
+import GameList from './components/GameList';
 
 const Profile = () => {
   const location = useLocation();
@@ -42,7 +43,7 @@ const Profile = () => {
       credentials: 'include',  // Include credentials to ensure cookies are sent
 
     });
-    debugger;
+
     if (response.ok) {
       console.log('Profile updated successfully');
       const data = await response.json();
@@ -129,15 +130,8 @@ const Profile = () => {
 
           <ProfileButton handleClick={handleEditToggle} label={isEditing ? 'Cancel' : 'Edit Profile'} />
         </div>
-        <div>
-          <ol>
-            {games.map((game) =>
-              <li key={game.id}>
-                <h2>Game ID: {game.id}</h2>
-              </li>
-            )}
-          </ol>
-        </div>
+        <GameList user={user} games={games} />
+
         <button
           type="button"
           onClick={handleLogout}

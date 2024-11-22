@@ -10,22 +10,27 @@ const GameSettings = ({ }) => {
   const location = useLocation();
   const [user, setUser] = useState(location.state?.user || null)
   const navigate = useNavigate(); // Use useNavigate for React Router navigation
-
+  const [roles, setRoles] = useState([
+    { role_id: 0, name: "Retailer", user_id: user.id, inventory: 10, ordered: 0, lastOrder: 0, received: 0, totalReceived: 0, pendingReceived: 0, roundsPending: 0, history: [], isHistoryVisible: false },
+    { role_id: 1, name: "Wholesaler", user_id: user.id, inventory: 20, ordered: 0, lastOrder: 0, received: 0, totalReceived: 0, pendingReceived: 0, roundsPending: 0, history: [], isHistoryVisible: false },
+    { role_id: 2, name: "Distributor", user_id: user.id, inventory: 20, ordered: 0, lastOrder: 0, received: 0, totalReceived: 0, pendingReceived: 0, roundsPending: 0, history: [], isHistoryVisible: false },
+    { role_id: 3, name: "Manufacturer", user_id: user.id, inventory: 20, ordered: 0, lastOrder: 0, received: 0, totalReceived: 0, pendingReceived: 0, roundsPending: 0, history: [], isHistoryVisible: false },
+  ]);
 
   const [errorMessage, setErrorMessage] = useState('');
 
   // Handle form submission to start the game
   const handleStartGame = async (e) => {
+    const data = { game: { round: 0, rounds, selectedRole: role, entropy, history: '' }, players: roles };
     e.preventDefault();
     try {
-      debugger;
       const response = await fetch('http://localhost:3001/api/games/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ round: 0, rounds, selectedRole: role, entropy }),
+        body: JSON.stringify(data),
       });
 
       //setIsLoading(false);
@@ -34,21 +39,21 @@ const GameSettings = ({ }) => {
         debugger;
         const data = await response.json();
         console.log('GAME CREATED:', data);
-        navigate('/game', { state: { gameId: data.id, user: user, role: Number(role), rounds: rounds, entropy: entropy } });
-      //  localStorage.setItem('authToken', data.token); // Store the token
+        navigate('/game', { state: { id: data.game.id, user: user, role: Number(role), rounds: rounds, entropy: entropy, players: data.plaeyrs } });
+        //  localStorage.setItem('authToken', data.token); // Store the token
 
         // Redirect to profile page after successful login
       } else {
         const data = await response.json();
         debugger;
         setErrorMessage(data.message || 'Oops!  We\'re not sure what happened.');
-        navigate('login');
+        //   navigate('/login');
       }
     } catch (error) {
       debugger;
-     //setIsLoading(false);
+      //setIsLoading(false);
       setErrorMessage('An error occurred. Please try again.');
-      navigate('login');
+      //navigate('/login');
       console.error(error);
     }
 
