@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ErrorModal from './components/ErrorModal';
+import Connection from './workers/Conncetion'
 
 const GameSettings = ({ }) => {
   // State for the game settings
@@ -23,24 +24,17 @@ const GameSettings = ({ }) => {
   const handleStartGame = async (e) => {
     const data = { game: { round: 0, rounds, selectedRole: role, entropy, history: '' }, players: roles };
     e.preventDefault();
-    try {
-      const response = await fetch('http://localhost:3001/api/games/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(data),
-      });
 
-      //setIsLoading(false);
+    try {
+      const response = await Connection.newGame(data);
+
       debugger;
-      if (response.ok) {
+      if (response) {
         debugger;
-        const data = await response.json();
-        console.log('GAME CREATED:', data);
-        navigate('/game', { state: { id: data.game.id, user: user, role: Number(role), rounds: rounds, entropy: entropy, players: data.plaeyrs } });
-        //  localStorage.setItem('authToken', data.token); // Store the token
+
+        localStorage.setItem('authToken', data.token); // Store the token
+        navigate('/game', { state: { id: response.game.id, user: user, role: Number(role), rounds: rounds, entropy: entropy, players: response.players } });
+        //
 
         // Redirect to profile page after successful login
       } else {
