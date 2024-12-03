@@ -1,6 +1,6 @@
 const newGame = async (data) => {
     try {
-        const response = await fetch('http://localhost:3001/api/games/', {
+        const response = await fetch('https://dg-beer-server.onrender.com/api/games/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -36,7 +36,7 @@ const newGame = async (data) => {
 const updateGameData = async (data) => {
     debugger;
     try {
-        const response = await fetch('http://localhost:3001/api/games/', {
+        const response = await fetch('https://dg-beer-server.onrender.com/api/games/', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

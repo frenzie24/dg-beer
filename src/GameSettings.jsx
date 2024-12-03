@@ -26,13 +26,33 @@ const GameSettings = ({ }) => {
     e.preventDefault();
 
     try {
-      const response = await Connection.newGame(data);
+     // const response = await Connection.newGame(data);
+      const response = await fetch('https://dg-beer-server.onrender.com/api/games/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(data),
+    });
 
+    debugger;
+    if (response.ok) {
+        debugger;
+        const data = await response.json();
+        console.log('GAME CREATED:', data);
+        localStorage.setItem('authToken', data.token); // Store the token
+        return data;
+        //          navigate('/game', { state: { id: data.game.id, user: user, role: Number(role), rounds: rounds, entropy: entropy, players: data.players } });
+        //
+
+        // Redirect to profile page after successful login
+    }
       debugger;
       if (response) {
         debugger;
 
-        localStorage.setItem('authToken', data.token); // Store the token
+        localStorage.setItem('authToken', response.token); // Store the token
         navigate('/game', { state: { id: response.game.id, user: user, role: Number(role), rounds: rounds, entropy: entropy, players: response.players } });
         //
 

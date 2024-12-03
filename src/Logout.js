@@ -1,6 +1,6 @@
 const Logout = async () => {
     try {
-        const response = await fetch('http://localhost:3001/api/users/logout', {
+        const response = await fetch('https://dg-beer-server.onrender.com/api/users/logout', {
             credentials: 'include',
             method: 'POST',
             headers: {

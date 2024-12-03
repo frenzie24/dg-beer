@@ -35,7 +35,7 @@ const Profile = () => {
   }, [])
 
   const getGames = async () => {
-    const response = await fetch(`http://localhost:3001/api/games/?id=${user.id}`, {
+    const response = await fetch(`https://dg-beer-server.onrender.com/api/games/?id=${user.id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -56,7 +56,7 @@ const Profile = () => {
   };
 
   const handleSave = async () => {
-    const response = await fetch('http://localhost:3001/api/users/edit', {
+    const response = await fetch('https://dg-beer-server.onrender.com/api/users/edit', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

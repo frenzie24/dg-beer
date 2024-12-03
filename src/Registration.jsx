@@ -31,7 +31,7 @@ const Registration = () => {
     setErrorMessage('');  // Clear error message before trying to register
 
     try {
-      const response = await fetch('http://localhost:3001/api/users/', {
+      const response = await fetch('https://dg-beer-server.onrender.com/api/users/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
