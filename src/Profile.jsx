@@ -5,6 +5,8 @@ import ProfileDetails from './components/ProfileDetails';
 import Logout from './Logout';
 import GameList from './components/GameList';
 
+const serverAddress = 'http://localhost:3001';
+
 const Profile = () => {
   const location = useLocation();
   const navigate = useNavigate(); // Use useNavigate for React Router navigation
@@ -35,7 +37,7 @@ const Profile = () => {
   }, [])
 
   const getGames = async () => {
-    const response = await fetch(`https://dg-beer-server.onrender.com/api/games/?id=${user.id}`, {
+    const response = await fetch(`${serverAddress}/api/games/?id=${user.id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -56,7 +58,7 @@ const Profile = () => {
   };
 
   const handleSave = async () => {
-    const response = await fetch('https://dg-beer-server.onrender.com/api/users/edit', {
+    const response = await fetch(`${serverAddress}/api/users/edit`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

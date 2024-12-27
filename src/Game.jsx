@@ -42,7 +42,7 @@ const stringifyData2D = (data) => {
 }
 
 const randomOrders = (entropy) => {
-    return Math.floor(Math.random() * 20) * (entropy / 2);
+    return Math.floor(Math.random() * 20) + entropy;
 }
 
 
@@ -88,6 +88,7 @@ const Game = () => {
     //returns into setRoles
     const checkFulfillment = (idx, players, amount) => {
         // set lastFulfilled to current fulfilled
+        if(idx===3) debugger;
 
         if (idx >= 0) {
             players[idx].lastFulfilled = players[idx].fulfilled;
@@ -106,7 +107,7 @@ const Game = () => {
                 }
             } else {
                 // the manufacturer gets random fulfillment which can suck lol
-                players[idx].fulfilled = randomOrders(entropy);
+                players[idx].fulfilled = randomOrders(amount)
             }
             players[idx].ordered = amount;
         }

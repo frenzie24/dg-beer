@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import ErrorModal from './components/ErrorModal';
 import RegistrationForm from './components/RegistrationForm'; // Import RegistrationForm
 import { useNavigate } from 'react-router-dom';
+const serverAddress = 'http://localhost:3001';
+
+
 
 const Registration = () => {
   const [errorMessage, setErrorMessage] = useState('');
@@ -31,7 +34,7 @@ const Registration = () => {
     setErrorMessage('');  // Clear error message before trying to register
 
     try {
-      const response = await fetch('https://dg-beer-server.onrender.com/api/users/', {
+      const response = await fetch(`${serverAddress}/api/users/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

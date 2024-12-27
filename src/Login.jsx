@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom'; // Import useNavigate from react
 import LoginForm from './components/LoginForm';
 import ErrorModal from './components/ErrorModal';  // Import the ErrorModal
 
+const serverAddress = 'http://localhost:3001'
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,7 +26,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('https://dg-beer-server.onrender.com/api/users/login', {
+      const response = await fetch(`${serverAddress}/api/users/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

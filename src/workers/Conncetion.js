@@ -1,6 +1,9 @@
+const serverAddress = 'http://localhost:3001';
+
+
 const newGame = async (data) => {
     try {
-        const response = await fetch('https://dg-beer-server.onrender.com/api/games/', {
+        const response = await fetch(`${serverAddress}/api/games`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -36,7 +39,7 @@ const newGame = async (data) => {
 const updateGameData = async (data) => {
     debugger;
     try {
-        const response = await fetch('https://dg-beer-server.onrender.com/api/games/', {
+        const response = await fetch(`${serverAddress}/games`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

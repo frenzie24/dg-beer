@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ErrorModal from './components/ErrorModal';
 import Connection from './workers/Conncetion'
+const serverAddress = 'http://localhost:3001';
+
+
+
 
 const GameSettings = ({ }) => {
   // State for the game settings
@@ -27,7 +31,7 @@ const GameSettings = ({ }) => {
 
     try {
      // const response = await Connection.newGame(data);
-      const response = await fetch('https://dg-beer-server.onrender.com/api/games/', {
+      const response = await fetch(`${serverAddress}/api/games`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -42,15 +46,14 @@ const GameSettings = ({ }) => {
         const data = await response.json();
         console.log('GAME CREATED:', data);
         localStorage.setItem('authToken', data.token); // Store the token
-        return data;
-        //          navigate('/game', { state: { id: data.game.id, user: user, role: Number(role), rounds: rounds, entropy: entropy, players: data.players } });
+         navigate('/game', { state: { id: data.game.id, user: user, role: Number(role), rounds: rounds, entropy: entropy, players: data.players } });
         //
 
         // Redirect to profile page after successful login
     }
       debugger;
       if (response) {
-        debugger;
+       
 
         localStorage.setItem('authToken', response.token); // Store the token
         navigate('/game', { state: { id: response.game.id, user: user, role: Number(role), rounds: rounds, entropy: entropy, players: response.players } });
